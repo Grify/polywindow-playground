@@ -4,6 +4,10 @@ import basewindow.IDrawer;
 import basewindow.IUpdater;
 import basewindow.IWindowHandler;
 import basewindow.InputCodes;
+import main.GUI.GUIElementText;
+import vmath.vector2;
+import vmath.vector3;
+import vmath.vector4;
 
 import static main.Playground.window;
 
@@ -11,6 +15,7 @@ public class Game implements IDrawer, IUpdater, IWindowHandler {
 	//initial variables
 	public static int absoluteDepthBase = 4;
 	public boolean mouseVisible = false;
+	public GUIElementText textthign = new GUIElementText(0,0,1,1,"stirng",new vector3(100,100,100));
 	//██████  ██████   █████  ██     ██ 
 	//██   ██ ██   ██ ██   ██ ██     ██ 
 	//██   ██ ██████  ███████ ██  █  ██ 
@@ -20,6 +25,7 @@ public class Game implements IDrawer, IUpdater, IWindowHandler {
 	public void draw() {
 		window.drawRect(98,98,24,24);
 		window.drawRect(100,100,20,20);
+		textthign.draw();
 			//window.fillRect(100,100,500,300);
 	}
 	//██    ██ ██████  ██████   █████  ████████ ███████ 
@@ -68,4 +74,12 @@ public class Game implements IDrawer, IUpdater, IWindowHandler {
 		window.setShowCursor(mouseVisible);
 		return mouseVisible;
 	}
+	public void setColor(vector3 color){
+		if(color instanceof vector4) {
+			window.setColor(color.x, color.y, color.z, ((vector4)color).q);
+		}else {
+			window.setColor(color.x, color.y, color.z);
+		}
+	}
+
 }

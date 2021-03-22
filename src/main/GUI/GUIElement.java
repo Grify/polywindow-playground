@@ -1,22 +1,30 @@
-package main;
+package main.GUI;
 
-import basewindow.InputCodes;
+import vmath.vector2;
 
-import static main.Playground.window;
-
-public class GUIElement {
+public abstract class GUIElement {
 	
-	public double[] position;
+	public vector2 position;
+	public vector2 scale;
 	
+	//that's nice
+	public GUIElement(double x, double y, double sx, double sy){
+		position = new vector2(x, y);
+		scale = new vector2(sx, sy);
+	}
+	
+	public GUIElement(vector2 position, vector2 scale){
+		this.position = position;
+		this.scale = scale;
+	}
+	//^ solid foundatiom
 	//██████  ██████   █████  ██     ██ 
 	//██   ██ ██   ██ ██   ██ ██     ██ 
 	//██   ██ ██████  ███████ ██  █  ██ 
 	//██   ██ ██   ██ ██   ██ ██ ███ ██ 
 	//██████  ██   ██ ██   ██  ███ ███  
 	
-	public void draw() {
-	
-	}
+	public abstract void draw();
 	
 	//██    ██ ██████  ██████   █████  ████████ ███████ 
 	//██    ██ ██   ██ ██   ██ ██   ██    ██    ██      
@@ -24,9 +32,6 @@ public class GUIElement {
 	//██    ██ ██      ██   ██ ██   ██    ██    ██    
 	// ██████  ██      ██████  ██   ██    ██    ███████ 
 	
-	public void update() {
-		double deltaTime = window.frameFrequency;
-		
-		
-	}
+	public abstract void update();
+	
 }

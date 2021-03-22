@@ -65,7 +65,7 @@ public class LWJGLWindow extends BaseWindow
 
 	public boolean batchMode = false;
 
-	protected boolean useShader = false;
+	public boolean useShader = false;
 
 	protected int textureFlag;
 	protected int depthFlag;
@@ -316,7 +316,7 @@ public class LWJGLWindow extends BaseWindow
 	{
 		GL.createCapabilities();
 
-		this.shadowMap = new ShadowMap(this);
+		//this.shadowMap = new ShadowMap(this);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -1035,7 +1035,7 @@ public class LWJGLWindow extends BaseWindow
 	public void drawRect(double x, double y, double sX, double sY)
 	{
 		glBegin(GL_LINES);
-		glVertex2d(x, y);
+		glVertex2d(x-1, y);
 		glVertex2d(x + sX, y);
 		glEnd();
 

@@ -22,284 +22,284 @@ import static org.lwjgl.system.libc.LibCStdlib.free;
 
 public class SoundPlayer extends BaseSoundPlayer
 {
-    public long context;
-    public long device;
+	public long context;
+	public long device;
 
-    public HashMap<String, Integer> buffers = new HashMap<String, Integer>();
-    public ArrayList<Integer> sources = new ArrayList<Integer>();
+	public HashMap<String, Integer> buffers = new HashMap<String, Integer>();
+	public ArrayList<Integer> sources = new ArrayList<Integer>();
 
-    public HashMap<String, Integer> musicBuffers = new HashMap<String, Integer>();
-    public ArrayList<Integer> musicSources = new ArrayList<Integer>();
+	public HashMap<String, Integer> musicBuffers = new HashMap<String, Integer>();
+	public ArrayList<Integer> musicSources = new ArrayList<Integer>();
 
-    public boolean musicsToLoad = false;
-    public final HashMap<String, Integer> finishedMusicBuffers = new HashMap<>();
+	public boolean musicsToLoad = false;
+	public final HashMap<String, Integer> finishedMusicBuffers = new HashMap<>();
 
-    public int currentMusic = -1;
-    public int prevMusic = -1;
+	public int currentMusic = -1;
+	public int prevMusic = -1;
 
-    public String musicID = null;
+	public String musicID = null;
 
-    public long fadeBegin = 0;
-    public long fadeEnd = 0;
+	public long fadeBegin = 0;
+	public long fadeEnd = 0;
 
-    public float prevVolume;
-    public float currentVolume;
+	public float prevVolume;
+	public float currentVolume;
 
-    /**
-     * Warning! This will give an exception if there are no audio devices plugged into the computer!
-     */
-    public SoundPlayer()
-    {
-        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
-        device = alcOpenDevice(defaultDeviceName);
+	/**
+	 * Warning! This will give an exception if there are no audio devices plugged into the computer!
+	 */
+	public SoundPlayer()
+	{
+		String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+		device = alcOpenDevice(defaultDeviceName);
 
-        int[] attributes = {0};
-        context = alcCreateContext(device, attributes);
-        alcMakeContextCurrent(context);
+		int[] attributes = {0};
+		context = alcCreateContext(device, attributes);
+		alcMakeContextCurrent(context);
 
-        ALCCapabilities alcCapabilities = ALC.createCapabilities(device);
-        ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
-    }
+		ALCCapabilities alcCapabilities = ALC.createCapabilities(device);
+		ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+	}
 
-    @Override
-    public void loadMusic(String path)
-    {
-        new Thread(() ->
-        {
-            musicsToLoad = false;
-            int i = setupMusic(path);
+	@Override
+	public void loadMusic(String path)
+	{
+		new Thread(() ->
+		{
+			musicsToLoad = false;
+			int i = setupMusic(path);
 
-            synchronized (finishedMusicBuffers)
-            {
-                finishedMusicBuffers.put(path, i);
-                musicsToLoad = true;
-            }
-        }).start();
-    }
+			synchronized (finishedMusicBuffers)
+			{
+				finishedMusicBuffers.put(path, i);
+				musicsToLoad = true;
+			}
+		}).start();
+	}
 
-    public void playSound(String path)
-    {
-        playSound(path, 1);
-    }
+	public void playSound(String path)
+	{
+		playSound(path, 1);
+	}
 
-    public void playSound(String path, float pitch)
-    {
-        playSound(path, pitch, 1);
-    }
+	public void playSound(String path, float pitch)
+	{
+		playSound(path, pitch, 1);
+	}
 
-    public void playSound(String path, float pitch, float volume)
-    {
-        if (sources.size() >= 240)
-            alDeleteSources(sources.remove(0));
+	public void playSound(String path, float pitch, float volume)
+	{
+		if (sources.size() >= 240)
+			alDeleteSources(sources.remove(0));
 
-        if (this.buffers.get(path) == null)
-            createSound(path);
+		if (this.buffers.get(path) == null)
+			createSound(path);
 
-        int bufferPointer = this.buffers.get(path);
+		int bufferPointer = this.buffers.get(path);
 
-        int sourcePointer = alGenSources();
+		int sourcePointer = alGenSources();
 
-        alSourcei(sourcePointer, AL_BUFFER, bufferPointer);
-        alSourcef(sourcePointer, AL_PITCH, pitch);
-        alSourcef(sourcePointer, AL_GAIN, volume);
+		alSourcei(sourcePointer, AL_BUFFER, bufferPointer);
+		alSourcef(sourcePointer, AL_PITCH, pitch);
+		alSourcef(sourcePointer, AL_GAIN, volume);
 
-        alSourcePlay(sourcePointer);
+		alSourcePlay(sourcePointer);
 
-        sources.add(sourcePointer);
-    }
+		sources.add(sourcePointer);
+	}
 
-    @Override
-    public void playMusic(String path, float volume, boolean looped, String continueID, long fadeTime)
-    {
-        if (musicSources.size() >= 15)
-            alDeleteSources(musicSources.remove(0));
+	@Override
+	public void playMusic(String path, float volume, boolean looped, String continueID, long fadeTime)
+	{
+		if (musicSources.size() >= 15)
+			alDeleteSources(musicSources.remove(0));
 
-        if (this.musicBuffers.get(path) == null)
-            createMusic(path);
+		if (this.musicBuffers.get(path) == null)
+			createMusic(path);
 
-        int bufferPointer = this.musicBuffers.get(path);
+		int bufferPointer = this.musicBuffers.get(path);
 
-        int loop = AL_FALSE;
+		int loop = AL_FALSE;
 
-        if (looped)
-            loop = AL_TRUE;
+		if (looped)
+			loop = AL_TRUE;
 
-        int sourcePointer = alGenSources();
+		int sourcePointer = alGenSources();
 
-        alSourceStop(prevMusic);
-        alSourceUnqueueBuffers(prevMusic);
-        prevMusic = currentMusic;
-        currentMusic = sourcePointer;
-        currentVolume = volume;
+		alSourceStop(prevMusic);
+		alSourceUnqueueBuffers(prevMusic);
+		prevMusic = currentMusic;
+		currentMusic = sourcePointer;
+		currentVolume = volume;
 
-        alSourcei(sourcePointer, AL_BUFFER, bufferPointer);
-        alSourcef(sourcePointer, AL_LOOPING, loop);
-        alSourcef(sourcePointer, AL_GAIN, volume);
+		alSourcei(sourcePointer, AL_BUFFER, bufferPointer);
+		alSourcef(sourcePointer, AL_LOOPING, loop);
+		alSourcef(sourcePointer, AL_GAIN, volume);
 
-        if (continueID != null && continueID.equals(this.musicID))
-        {
-            alSourcef(sourcePointer, EXTOffset.AL_SEC_OFFSET, alGetSourcef(prevMusic, EXTOffset.AL_SEC_OFFSET));
-            alSourcef(sourcePointer, AL_GAIN, 0);
+		if (continueID != null && continueID.equals(this.musicID))
+		{
+			alSourcef(sourcePointer, EXTOffset.AL_SEC_OFFSET, alGetSourcef(prevMusic, EXTOffset.AL_SEC_OFFSET));
+			alSourcef(sourcePointer, AL_GAIN, 0);
 
-            fadeBegin = System.currentTimeMillis();
-            fadeEnd = System.currentTimeMillis() + fadeTime;
-        }
+			fadeBegin = System.currentTimeMillis();
+			fadeEnd = System.currentTimeMillis() + fadeTime;
+		}
 
-        alSourcePlay(sourcePointer);
-        prevVolume = volume;
+		alSourcePlay(sourcePointer);
+		prevVolume = volume;
 
-        this.musicID = continueID;
+		this.musicID = continueID;
 
-        musicSources.add(sourcePointer);
-    }
+		musicSources.add(sourcePointer);
+	}
 
-    @Override
-    public void playMusic(String path, float volume, boolean looped, String continueID, long fadeTime, boolean stoppable)
-    {
-        this.playMusic(path, volume, looped, continueID, fadeTime);
-    }
+	@Override
+	public void playMusic(String path, float volume, boolean looped, String continueID, long fadeTime, boolean stoppable)
+	{
+		this.playMusic(path, volume, looped, continueID, fadeTime);
+	}
 
-    @Override
-    public void stopMusic()
-    {
-        alSourceStop(currentMusic);
-        alSourceStop(prevMusic);
-        alSourceUnqueueBuffers(currentMusic);
-        alSourceUnqueueBuffers(prevMusic);
-        this.currentMusic = -1;
-        this.prevMusic = -1;
-        this.musicID = null;
-    }
+	@Override
+	public void stopMusic()
+	{
+		alSourceStop(currentMusic);
+		alSourceStop(prevMusic);
+		alSourceUnqueueBuffers(currentMusic);
+		alSourceUnqueueBuffers(prevMusic);
+		this.currentMusic = -1;
+		this.prevMusic = -1;
+		this.musicID = null;
+	}
 
-    @Override
-    public void registerCombinedMusic(String path, String id)
-    {
+	@Override
+	public void registerCombinedMusic(String path, String id)
+	{
 
-    }
+	}
 
-    protected void createSound(String path)
-    {
-        ShortBuffer rawAudioBuffer = null;
+	protected void createSound(String path)
+	{
+		ShortBuffer rawAudioBuffer = null;
 
-        int channels = -1;
-        int sampleRate = -1;
+		int channels = -1;
+		int sampleRate = -1;
 
-        try (MemoryStack stack = stackPush())
-        {
-            //Allocate space to store return information from the function
-            IntBuffer channelsBuffer = stack.mallocInt(1);
-            IntBuffer sampleRateBuffer = stack.mallocInt(1);
+		try (MemoryStack stack = stackPush())
+		{
+			//Allocate space to store return information from the function
+			IntBuffer channelsBuffer = stack.mallocInt(1);
+			IntBuffer sampleRateBuffer = stack.mallocInt(1);
 
-            InputStream in = getClass().getResourceAsStream(path);
-            byte[] bytes = IOUtils.toByteArray(in);
-            ByteBuffer b = MemoryUtil.memAlloc(bytes.length);
-            b.put(bytes);
-            b.flip();
+			InputStream in = getClass().getResourceAsStream(path);
+			byte[] bytes = IOUtils.toByteArray(in);
+			ByteBuffer b = MemoryUtil.memAlloc(bytes.length);
+			b.put(bytes);
+			b.flip();
 
-            rawAudioBuffer = stb_vorbis_decode_memory(b, channelsBuffer, sampleRateBuffer);
-            in.close();
+			rawAudioBuffer = stb_vorbis_decode_memory(b, channelsBuffer, sampleRateBuffer);
+			in.close();
 
-            //Retreive the extra information that was stored in the buffers by the function
-            channels = channelsBuffer.get(0);
-            sampleRate = sampleRateBuffer.get(0);
-        }
-        catch (IOException e)
-        {
-            System.err.println("Failed to create sound " + path);
-            e.printStackTrace();
-        }
+			//Retreive the extra information that was stored in the buffers by the function
+			channels = channelsBuffer.get(0);
+			sampleRate = sampleRateBuffer.get(0);
+		}
+		catch (IOException e)
+		{
+			System.err.println("Failed to create sound " + path);
+			e.printStackTrace();
+		}
 
-        //Find the correct OpenAL format
-        int format = -1;
-        if (channels == 1)
-        {
-            format = AL_FORMAT_MONO16;
-        }
-        else if (channels == 2)
-        {
-            format = AL_FORMAT_STEREO16;
-        }
+		//Find the correct OpenAL format
+		int format = -1;
+		if (channels == 1)
+		{
+			format = AL_FORMAT_MONO16;
+		}
+		else if (channels == 2)
+		{
+			format = AL_FORMAT_STEREO16;
+		}
 
-        //Request space for the buffer
-        int bufferPointer = alGenBuffers();
+		//Request space for the buffer
+		int bufferPointer = alGenBuffers();
 
-        //Send the data to OpenAL
-        alBufferData(bufferPointer, format, rawAudioBuffer, sampleRate);
+		//Send the data to OpenAL
+		alBufferData(bufferPointer, format, rawAudioBuffer, sampleRate);
 
-        //Free the memory allocated by STB
-        free(rawAudioBuffer);
+		//Free the memory allocated by STB
+		free(rawAudioBuffer);
 
-        this.buffers.put(path, bufferPointer);
-    }
+		this.buffers.put(path, bufferPointer);
+	}
 
-    protected int setupMusic(String path)
-    {
-        ShortBuffer rawAudioBuffer = null;
+	protected int setupMusic(String path)
+	{
+		ShortBuffer rawAudioBuffer = null;
 
-        int channels = -1;
-        int sampleRate = -1;
+		int channels = -1;
+		int sampleRate = -1;
 
-        try (MemoryStack stack = stackPush())
-        {
-            //Allocate space to store return information from the function
-            IntBuffer channelsBuffer = stack.mallocInt(1);
-            IntBuffer sampleRateBuffer = stack.mallocInt(1);
+		try (MemoryStack stack = stackPush())
+		{
+			//Allocate space to store return information from the function
+			IntBuffer channelsBuffer = stack.mallocInt(1);
+			IntBuffer sampleRateBuffer = stack.mallocInt(1);
 
-            InputStream in = getClass().getResourceAsStream(path);
-            byte[] bytes = IOUtils.toByteArray(in);
-            ByteBuffer b = MemoryUtil.memAlloc(bytes.length);
-            b.put(bytes);
-            b.flip();
+			InputStream in = getClass().getResourceAsStream(path);
+			byte[] bytes = IOUtils.toByteArray(in);
+			ByteBuffer b = MemoryUtil.memAlloc(bytes.length);
+			b.put(bytes);
+			b.flip();
 
-            rawAudioBuffer = stb_vorbis_decode_memory(b, channelsBuffer, sampleRateBuffer);
-            in.close();
+			rawAudioBuffer = stb_vorbis_decode_memory(b, channelsBuffer, sampleRateBuffer);
+			in.close();
 
-            //Retreive the extra information that was stored in the buffers by the function
-            channels = channelsBuffer.get(0);
-            sampleRate = sampleRateBuffer.get(0);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+			//Retreive the extra information that was stored in the buffers by the function
+			channels = channelsBuffer.get(0);
+			sampleRate = sampleRateBuffer.get(0);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 
-        //Find the correct OpenAL format
-        int format = -1;
-        if (channels == 1)
-        {
-            format = AL_FORMAT_MONO16;
-        }
-        else if (channels == 2)
-        {
-            format = AL_FORMAT_STEREO16;
-        }
+		//Find the correct OpenAL format
+		int format = -1;
+		if (channels == 1)
+		{
+			format = AL_FORMAT_MONO16;
+		}
+		else if (channels == 2)
+		{
+			format = AL_FORMAT_STEREO16;
+		}
 
-        //Request space for the buffer
-        int bufferPointer = alGenBuffers();
+		//Request space for the buffer
+		int bufferPointer = alGenBuffers();
 
-        //Send the data to OpenAL
-        alBufferData(bufferPointer, format, rawAudioBuffer, sampleRate);
+		//Send the data to OpenAL
+		alBufferData(bufferPointer, format, rawAudioBuffer, sampleRate);
 
-        //Free the memory allocated by STB
-        free(rawAudioBuffer);
+		//Free the memory allocated by STB
+		free(rawAudioBuffer);
 
-        return bufferPointer;
-    }
+		return bufferPointer;
+	}
 
-    protected void createMusic(String path)
-    {
-        this.musicBuffers.put(path, this.setupMusic(path));
-    }
+	protected void createMusic(String path)
+	{
+		this.musicBuffers.put(path, this.setupMusic(path));
+	}
 
-    public void exit()
-    {
-        alcDestroyContext(context);
-        alcCloseDevice(device);
+	public void exit()
+	{
+		alcDestroyContext(context);
+		alcCloseDevice(device);
 
-        for (String s: this.buffers.keySet())
-        {
-            int i = this.buffers.get(s);
-            alDeleteBuffers(i);
-        }
-    }
+		for (String s: this.buffers.keySet())
+		{
+			int i = this.buffers.get(s);
+			alDeleteBuffers(i);
+		}
+	}
 }

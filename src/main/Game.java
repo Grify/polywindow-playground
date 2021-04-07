@@ -5,6 +5,8 @@ import basewindow.IUpdater;
 import basewindow.IWindowHandler;
 import basewindow.InputCodes;
 import main.GUI.GUIElementText;
+import main.GUI.Screen;
+import main.GUI.ScreenTest;
 import vmath.vector2;
 import vmath.vector3;
 import vmath.vector4;
@@ -13,6 +15,7 @@ import static main.Playground.window;
 
 public class Game implements IDrawer, IUpdater, IWindowHandler {
 	//initial variables
+	public Screen currentScreen = new ScreenTest();
 	public static int absoluteDepthBase = 4;
 	public boolean mouseVisible = false;
 	public GUIElementText textthign = new GUIElementText(0,0,1,1,"stirng",new vector3(100,100,100));
@@ -23,9 +26,10 @@ public class Game implements IDrawer, IUpdater, IWindowHandler {
 	//██████  ██   ██ ██   ██  ███ ███  
 	@Override
 	public void draw() {
-		window.drawRect(98,98,24,24);
-		window.drawRect(100,100,20,20);
-		textthign.draw();
+//		window.drawRect(98,98,24,24);
+//		window.drawRect(100,100,20,20);
+//		textthign.draw();
+		currentScreen.draw();
 			//window.fillRect(100,100,500,300);
 	}
 	//██    ██ ██████  ██████   █████  ████████ ███████ 
@@ -35,6 +39,7 @@ public class Game implements IDrawer, IUpdater, IWindowHandler {
 	// ██████  ██      ██████  ██   ██    ██    ███████
 	@Override
 	public void update() {
+		currentScreen.update();
 		double deltaTime = window.frameFrequency;
 		if (window.pressedKeys.contains(InputCodes.KEY_ESCAPE)){
 			quit();

@@ -17,7 +17,7 @@ public abstract class GUIElement {
 		this.position = position;
 		this.scale = scale;
 	}
-	//^ solid foundatiom
+	//^ solid foundation
 	//██████  ██████   █████  ██     ██ 
 	//██   ██ ██   ██ ██   ██ ██     ██ 
 	//██   ██ ██████  ███████ ██  █  ██ 

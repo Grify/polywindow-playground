@@ -1,6 +1,6 @@
 package main;
 
-public class Object<properties> {
+public class GameObject<properties> {
 	
 	
 	private double[] pos;

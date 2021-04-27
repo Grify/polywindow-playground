@@ -7,6 +7,7 @@ import basewindow.IDrawer;
 import basewindow.IUpdater;
 import basewindow.IWindowHandler;
 import lwjglwindow.LWJGLWindow;
+import main.GUI.ScreenTest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class Playground {
 	public static void main(String[] args){
 		//LWJGLWindow params: name, width, height, depth#
 		window = new LWJGLWindow("Tanks", 1400, 900, game.absoluteDepthBase, game, game, game, true, false);//window = new LWJGLWindow("Tanks", 1400, 900, Game.absoluteDepthBase, new GameUpdater(), new GameDrawer(), new GameWindowHandler(), Game.vsync, !Panel.showMouseTarget);
+		game.currentScreen = new ScreenTest();
+		
 		//window.setShadowQuality(0);
 		window.useShader = false;
 		window.run();

@@ -15,7 +15,7 @@ import static main.Playground.window;
 
 public class Game implements IDrawer, IUpdater, IWindowHandler {
 	//initial variables
-	public Screen currentScreen = new ScreenTest();
+	public Screen currentScreen;
 	public static int absoluteDepthBase = 4;
 	public boolean mouseVisible = false;
 	public GUIElementText textthign = new GUIElementText(0,0,1,1,"stirng",new vector3(100,100,100));
